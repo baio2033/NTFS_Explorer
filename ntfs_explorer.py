@@ -4,16 +4,18 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QStandardItemModel
 from time import *
 from functools import partial
+from struct import *
 
 class MainDialog(QDialog):
 	num, name, size, path, mtime, atime, ctime, etime = range(8)
 	def __init__(self, parent=None):
 		super(MainDialog, self).__init__(parent)
+		self.loadVolume()
 		self.initUI()
 
 	def initUI(self):
 		self.setWindowTitle("NTFS Explorer")
-		
+
 		path = "\t\t\t\t\t"
 		dirName = QLabel("Folder ")
 		dirValue = QLabel(path)
@@ -48,8 +50,18 @@ class MainDialog(QDialog):
 
 		self.show()
 
-	def test():
+	def test(self):
 		print("hihi")
+
+	def loadVolume(self):
+		self.handle = open("\\\\.\\C:","rb")
+		vbr = self.handle.read(512)
+		chk = unpack_from('>I',vbr,3)[0]
+		if chk != 0x4e544653:
+			msg = QMessageBox(QMessageBox.Critical, "Error", "None NTFS File System!", QMessageBox.NoButton, self)
+			msg.addButton("&Close", QMessageBox.RejectRole)
+			msg.exec_()
+			sys.exit()
 
 	def createModel(self, parent):
 		model = QStandardItemModel(0,5,parent)
