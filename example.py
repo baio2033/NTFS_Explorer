@@ -38,11 +38,11 @@ class MainDialog(QDialog):
         self.dView = QTreeView()
         self.dView.setRootIsDecorated(False)
         self.dView.setAlternatingRowColors(True)
-        #dView.doubleClicked.connect(self.test)
+        self.dView.doubleClicked.connect(self.selectDir)
 
         self.model = self.createModel(self)
         self.dView.setModel(self.model)
-        self.dView.sortByColumn(0,Qt.DescendingOrder)
+        self.dView.sortByColumn(0,Qt.AscendingOrder)
         self.loadRootDir('C:')
 
 
@@ -70,6 +70,7 @@ class MainDialog(QDialog):
             sys.exit()
         self.rootDir = self.fs_info.open_dir('/')
         path = self.getPath(self.rootDir)
+        self.cwd = path
         cnt = 0
         for f in self.rootDir:  
             try:
@@ -97,9 +98,18 @@ class MainDialog(QDialog):
     def gotoDir(self):
         self.delData()
         pathname = self.dirValue.text()
-        selectedPath = self.fs_info.open_dir(pathname)
+        try:
+            selectedPath = self.fs_info.open_dir(pathname)
+        except:
+            msg = QMessageBox(QMessageBox.Critical, "Error", "Select only Directory!", QMessageBox.NoButton, self)
+            msg.addButton("&Close", QMessageBox.RejectRole)
+            msg.exec_()
+            self.dirValue.setText(str(self.cwd))
+            self.gotoDir()
+            return
         self.file_info = []
         path = self.getPath(selectedPath)
+        self.cwd = path
         for f in selectedPath:
             try:
                 fname = f.info.name.name
@@ -122,6 +132,20 @@ class MainDialog(QDialog):
                 pass
 
         self.createTree()
+
+    def selectDir(self):
+        data = self.model.itemData(self.dView.selectedIndexes()[1])
+        path = self.cwd + str(data[0])
+        if self.cwd.endswith("/") == False:
+            path += "/"
+        if path.endswith(".") or path.endswith(".."):
+            tmp = path.split("/")
+            path = ""
+            for i in range(1,len(tmp)-2):
+                path += "/" + tmp[i]
+        self.dirValue.setText(path)
+
+        self.gotoDir()
 
     def getPath(self,directory):
         name = ""      
