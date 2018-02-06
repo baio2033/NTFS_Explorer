@@ -23,6 +23,7 @@ class MainDialog(QDialog):
         path = "\t\t\t\t\t"
         dirName = QLabel("Folder ")
         self.dirValue = QLineEdit()
+        self.dirValue.setFixedWidth(600)
         dirButton = QPushButton("Go")
         dirButton.clicked.connect(self.gotoDir)
 
