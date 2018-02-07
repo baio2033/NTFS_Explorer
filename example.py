@@ -75,7 +75,7 @@ class MainDialog(QDialog):
         cnt = 0
         for f in self.rootDir:  
             try:
-                fname = f.info.name.name
+                fname = f.info.name.name.decode('utf-8')
                 mtime = TimeFormat(f.info.meta.mtime)
                 atime = TimeFormat(f.info.meta.atime)
                 ctime = TimeFormat(f.info.meta.ctime)
@@ -113,7 +113,7 @@ class MainDialog(QDialog):
         self.cwd = path
         for f in selectedPath:
             try:
-                fname = f.info.name.name
+                fname = f.info.name.name.decode('utf-8')
                 mtime = TimeFormat(f.info.meta.mtime)
                 atime = TimeFormat(f.info.meta.atime)
                 ctime = TimeFormat(f.info.meta.ctime)
@@ -161,7 +161,7 @@ class MainDialog(QDialog):
             for f in directory:
                 if f.info.meta:
                     if f.info.meta.addr == prev_inode:
-                        name = decode_name(f.info.name.name) + "/" + name
+                        name = f.info.name.name.decode('utf-8') + "/" + name
 
             if chk == False:
                 break
@@ -198,16 +198,9 @@ class MainDialog(QDialog):
     def createTree(self):
         cnt = 0
         for f in self.file_info:
-            self.addData(str(cnt), decode_name(f[0]),f[1],f[2],f[3],f[4],f[5],f[6],f[7])
+            self.addData(str(cnt), f[0],f[1],f[2],f[3],f[4],f[5],f[6],f[7])
             cnt += 1
         #self.dView.sortByColumn(0,Qt.DescendingOrder)
-
-def decode_name(name):
-    decoded_name = ""
-    for i in name:
-        if i != 0:
-            decoded_name += chr(i)
-    return decoded_name
 
 def TimeFormat(filetime):
     tmp = datetime.fromtimestamp(filetime).strftime("%Y-%m-%d %H:%M:%S")
