@@ -114,9 +114,8 @@ class MainDialog(QDialog):
         try:
             selectedPath = self.fs_info.open_dir(pathname)
         except:
-            msg = QMessageBox(QMessageBox.Critical, "Error", "Select only Directory!", QMessageBox.NoButton, self)
-            msg.addButton("&Close", QMessageBox.RejectRole)
-            msg.exec_()
+            selectFile = self.fs_info.open(pathname)
+            self.exportFile(selectFile)
             self.dirValue.setText(str(self.cwd))
             self.gotoDir()
             return
@@ -214,16 +213,39 @@ class MainDialog(QDialog):
             cnt += 1
         #self.dView.sortByColumn(0,Qt.DescendingOrder)
 
+    def exportFile(self,file):
+        name = file.info.name.name.decode('utf-8')
+        offset = 0
+        if file.info.meta == None:
+            msg = QMessageBox(QMessageBox.Information,"Error","Fail to read meta data",QMessageBox.NoButton,self)
+            msg.addButton("&Close", QMessageBox.RejectRole)
+            msg.exec_()
+            return
+        size = file.info.meta.size
+        BUFF_SIZE = 1024 * 1024
+        data = open('./export/'+name,'wb')
+        while offset < size:
+            av_to_read = min(BUFF_SIZE, size - offset)
+            d = file.read_random(offset,av_to_read)
+            if not d: break
+            data.write(d)
+            offset += len(d)
+        msg = QMessageBox(QMessageBox.Information,"Success","File export Completed!",QMessageBox.NoButton,self)
+        msg.addButton("&Close",QMessageBox.RejectRole)
+        msg.exec_()
+
     def exportHtml(self):
         now = time.localtime()
         s = "%04d%02d%02d_%02d%02d%02d" % (now.tm_year, now.tm_mon, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec)
         fname = "export_" + s + ".html"
         f = open(fname, 'w')
         hdr_src = "<!DOCTYPE html><html><head><title>BoB6 NTFS</title><style>table, th, td {border: 1px solid black;border-collapse: collapse;}{padding: 5px;text-align: left;}table#t01 tr:nth-child(even) {background-color: #eee;}table#t01 tr:nth-child(odd) {background-color:#fff;}table#t01 th {background-color: black;color: white;}</style></head><body><h1> BoB6 Digital Forensics 6th Choi Jungwan </h1><hr>"
+        vol_src = "<h2> Volume : " + VOLUME + "</h2><hr>"
         path_src = "<h2> Path: " + self.cwd 
         path_src += "</h2><hr><table id=\"t01\"><tr><th>Num</th><th>Name</th><th>Size</th><th>Type</th><th>mtime</th><th>atime</th><th>ctime</th><th>etime</th></tr>"
-        tail_src ="</table></body></html>"
+        tail_src ="</table></body><footer><hr><p>Made by: Jungwan Choi</p><p>Contact information: <a href=\"mailto:baio2033@korea.ac.kr\">baio2033@korea.ac.kr</a>.</p></footer></html>"
         f.write(hdr_src)
+        f.write(vol_src)
         f.write(path_src)
         cnt = 0
         for e in self.file_info:
@@ -283,10 +305,14 @@ def TimeFormat(filetime):
     return tmp
 
 if __name__ == "__main__":
+    try:
+        os.mkdir('./export')
+    except:
+        pass
     app = QApplication(sys.argv)
     
     volCheck = VolumePop()
     if volCheck.exec_():
-        print(VOLUME)
+        print("[+] please wait...")
     dialog = MainDialog()
     sys.exit(app.exec_())
