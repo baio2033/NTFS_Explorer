@@ -8,6 +8,7 @@ from struct import *
 from datetime import datetime
 
 DEBUG = False
+VOLUME = ""
 
 class MainDialog(QDialog):
     num, name, size, ftype, path, mtime, atime, ctime, etime = range(9)
@@ -26,12 +27,16 @@ class MainDialog(QDialog):
         self.dirValue.setFixedWidth(600)
         dirButton = QPushButton("Go")
         dirButton.clicked.connect(self.gotoDir)
+        exportBtn = QPushButton("Export HTML")
+        exportBtn.clicked.connect(self.test)
 
         dirLayout = QGridLayout()
         dirLayout.setAlignment(Qt.AlignLeft)
         dirLayout.addWidget(dirName,0,0,Qt.AlignLeft)
         dirLayout.addWidget(self.dirValue,0,1,Qt.AlignLeft)
         dirLayout.addWidget(dirButton,0,2,Qt.AlignLeft)
+        dirLayout.addWidget(exportBtn,0,3,Qt.AlignRight)
+
 
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
         buttonBox.accepted.connect(self.accept)
@@ -40,11 +45,12 @@ class MainDialog(QDialog):
         self.dView.setRootIsDecorated(False)
         self.dView.setAlternatingRowColors(True)
         self.dView.doubleClicked.connect(self.selectDir)
+        self.dView.setSortingEnabled(True)
 
         self.model = self.createModel(self)
         self.dView.setModel(self.model)
-        self.dView.sortByColumn(0,Qt.AscendingOrder)
-        self.loadRootDir('C:')
+        #self.dView.sortByColumn(0,Qt.AscendingOrder)
+        self.loadRootDir(VOLUME)
 
 
         mainLayout = QVBoxLayout()
@@ -202,11 +208,46 @@ class MainDialog(QDialog):
             cnt += 1
         #self.dView.sortByColumn(0,Qt.DescendingOrder)
 
+class VolumePop(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle("Volume")
+
+        layout = QGridLayout()
+        self.setLayout(layout)
+
+        self.volName = QLabel("Volume ")
+        self.volValue = QLineEdit()
+        self.volValue.setFixedWidth(200)
+        self.volButton = QPushButton("Enter")
+        self.volButton.clicked.connect(self.setVolume)
+
+        layout.addWidget(self.volName,0,1)
+        layout.addWidget(self.volValue,0,2)
+        layout.addWidget(self.volButton,0,3)
+
+        self.show()
+
+    def setVolume(self):
+        global VOLUME
+        print(self.volValue.text())
+        if self.volValue.text() != "":
+            VOLUME = self.volValue.text()
+            self.reject()
+
 def TimeFormat(filetime):
     tmp = datetime.fromtimestamp(filetime).strftime("%Y-%m-%d %H:%M:%S")
     return tmp
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    
+    volCheck = VolumePop()
+    if volCheck.exec_():
+        print(VOLUME)
     dialog = MainDialog()
     sys.exit(app.exec_())
