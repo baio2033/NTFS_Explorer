@@ -68,9 +68,14 @@ class MainDialog(QDialog):
         print("hihi")
 
     def loadRootDir(self, volumename):
-        self.img = pytsk3.Img_Info('\\\\.\\'+volumename)
-        self.fs_info = pytsk3.FS_Info(self.img)
-
+        try:
+            self.img = pytsk3.Img_Info('\\\\.\\'+volumename)
+            self.fs_info = pytsk3.FS_Info(self.img)
+        except:
+            msg = QMessageBox(QMessageBox.Critical, "Error", "Check your Volume Name! (ex. C:)", QMessageBox.NoButton, self)
+            msg.addButton("&Close", QMessageBox.RejectRole)
+            msg.exec_()
+            sys.exit()
         if str(self.fs_info.info.ftype) != "TSK_FS_TYPE_NTFS_DETECT":
             msg = QMessageBox(QMessageBox.Critical, "Error", "None NTFS File System!", QMessageBox.NoButton, self)
             msg.addButton("&Close", QMessageBox.RejectRole)
@@ -123,8 +128,8 @@ class MainDialog(QDialog):
                 fname = f.info.name.name.decode('utf-8')
                 mtime = TimeFormat(f.info.meta.mtime)
                 atime = TimeFormat(f.info.meta.atime)
-                ctime = TimeFormat(f.info.meta.ctime)
-                etime = TimeFormat(f.info.meta.crtime)
+                ctime = TimeFormat(f.info.meta.crtime)
+                etime = TimeFormat(f.info.meta.ctime)
                 size = f.info.meta.size
                 if f.info.meta.type:
                     if str(f.info.meta.type) == "TSK_FS_META_TYPE_DIR":
