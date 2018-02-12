@@ -6,6 +6,7 @@ from time import *
 from functools import partial
 from struct import *
 from datetime import datetime
+import time
 
 DEBUG = False
 VOLUME = ""
@@ -28,7 +29,7 @@ class MainDialog(QDialog):
         dirButton = QPushButton("Go")
         dirButton.clicked.connect(self.gotoDir)
         exportBtn = QPushButton("Export HTML")
-        exportBtn.clicked.connect(self.test)
+        exportBtn.clicked.connect(self.exportHtml)
 
         dirLayout = QGridLayout()
         dirLayout.setAlignment(Qt.AlignLeft)
@@ -207,6 +208,39 @@ class MainDialog(QDialog):
             self.addData(str(cnt), f[0],f[1],f[2],f[3],f[4],f[5],f[6],f[7])
             cnt += 1
         #self.dView.sortByColumn(0,Qt.DescendingOrder)
+
+    def exportHtml(self):
+        now = time.localtime()
+        s = "%04d%02d%02d_%02d%02d%02d" % (now.tm_year, now.tm_mon, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec)
+        fname = "export_" + s + ".html"
+        f = open(fname, 'w')
+        hdr_src = "<!DOCTYPE html><html><head><title>BoB6 NTFS</title><style>table, th, td {border: 1px solid black;border-collapse: collapse;}{padding: 5px;text-align: left;}table#t01 tr:nth-child(even) {background-color: #eee;}table#t01 tr:nth-child(odd) {background-color:#fff;}table#t01 th {background-color: black;color: white;}</style></head><body><h1> BoB6 Digital Forensics 6th Choi Jungwan </h1><hr>"
+        path_src = "<h2> Path: " + self.cwd 
+        path_src += "</h2><hr><table id=\"t01\"><tr><th>Num</th><th>Name</th><th>Size</th><th>Type</th><th>mtime</th><th>atime</th><th>ctime</th><th>etime</th></tr>"
+        tail_src ="</table></body></html>"
+        f.write(hdr_src)
+        f.write(path_src)
+        cnt = 0
+        for e in self.file_info:
+            entry_src = "<tr>"
+            entry_src += "<td>" + str(cnt) + "</td>"
+            entry_src += "<td>" + str(e[0]) + "</td>"
+            entry_src += "<td>" + str(e[1]) + "</td>"
+            entry_src += "<td>" + str(e[2]) + "</td>"
+            entry_src += "<td>" + str(e[4]) + "</td>"
+            entry_src += "<td>" + str(e[5]) + "</td>"
+            entry_src += "<td>" + str(e[6]) + "</td>"
+            entry_src += "<td>" + str(e[7]) + "</td>"
+            f.write(entry_src)
+            cnt += 1
+        f.write(tail_src)
+        f.close()
+
+
+        msg = QMessageBox(QMessageBox.Information, "Success", "HTML export Completed!", QMessageBox.NoButton, self)
+        msg.addButton("&Close", QMessageBox.RejectRole)
+        msg.exec_()
+
 
 class VolumePop(QDialog):
     def __init__(self, parent=None):
