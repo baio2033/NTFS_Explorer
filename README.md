@@ -6,13 +6,13 @@
   
   ## Requirements
   > OS : Windows 10 
-  > Python 3
-  > PyQt5
-  > pytsk3
+  > Python 3 <br>
+  > PyQt5 <br>
+  > pytsk3 <br>
   
   ## Usage
-  > python3 ntfs_explorer.py
-  > Input Volume name ex) c:
-  > double click folder or input path and click 'Go' to move
-  > double click file to export
-  > click 'exportHTML' to export view as HTML
+  > python3 ntfs_explorer.py <br>
+  > Input Volume name ex) c: <br>
+  > double click folder or input path and click 'Go' to move <br>
+  > double click file to export <br>
+  > click 'exportHTML' to export view as HTML <br>
