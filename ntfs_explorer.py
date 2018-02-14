@@ -238,7 +238,7 @@ class MainDialog(QDialog):
         now = time.localtime()
         s = "%04d%02d%02d_%02d%02d%02d" % (now.tm_year, now.tm_mon, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec)
         fname = "export_" + s + ".html"
-        f = open(fname, 'w')
+        f = open('./html/'+fname, 'w')
         hdr_src = "<!DOCTYPE html><html><head><title>BoB6 NTFS</title><style>table, th, td {border: 1px solid black;border-collapse: collapse;}{padding: 5px;text-align: left;}table#t01 tr:nth-child(even) {background-color: #eee;}table#t01 tr:nth-child(odd) {background-color:#fff;}table#t01 th {background-color: black;color: white;}</style></head><body><h1> BoB6 Digital Forensics 6th Choi Jungwan </h1><hr>"
         vol_src = "<h2> Volume : " + VOLUME + "</h2><hr>"
         path_src = "<h2> Path: " + self.cwd 
@@ -307,6 +307,10 @@ def TimeFormat(filetime):
 if __name__ == "__main__":
     try:
         os.mkdir('./export')
+    except:
+        pass
+    try:
+        os.mkdir('./html')
     except:
         pass
     app = QApplication(sys.argv)
