@@ -12,7 +12,7 @@
   
   ## Usage
   1. python3 ntfs_explorer.py <br>
-  2. Input Volume name ex) c: <br>
+  2. Input Volume name <br>
   3. double click folder or input path and click 'Go' to move <br>
   4. double click file to export <br>
   5. click 'exportHTML' to export view as HTML <br>
